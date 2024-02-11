@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "ema"
+version = "0.1.0"
+description = ""
+authors = ["Arunscape <8227297+Arunscape@users.noreply.github.com>"]
+license = "AGPL-3.0"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+yfinance = {extras = ["nospam", "repair"], version = "^0.2.36"}
+pyarrow = "^15.0.0"
+pandas = "^2.2.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
