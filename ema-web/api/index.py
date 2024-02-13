@@ -17,10 +17,19 @@ def ticker_info(ticker):
 
     data = get_data(ticker)
 
-    ema = ema_crosses_ma(data)
-    macd = macd_crossovers(data)
+    crosses_up, crosses_down = ema_crosses_ma(data)
+    bullish_macd, bearish_macd = macd_crossovers(data)
 
-    return ema, macd
+    return {
+        "ema": {
+            "crosses_up": crosses_up,
+            "crosses_down": crosses_down,
+        },
+        "macd": {
+            "bullish_macd": bullish_macd,
+            "bearish_macd": bearish_macd,
+        }
+    }
 
 
 
