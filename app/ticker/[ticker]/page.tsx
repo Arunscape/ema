@@ -1,4 +1,5 @@
 async function getData(ticker: string){
+  "use client"
   const data = await fetch(`http://localhost:8000/api/ticker/${ticker}`)
   return data.json()
 }
