@@ -1,2 +1,9 @@
 fastapi
 uvicorn
+pandas
+yfinance[nospam,repair]
+pytickersymbols
+numpy
+black
+isort
+vulture
