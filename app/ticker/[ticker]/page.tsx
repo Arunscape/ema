@@ -1,19 +1,15 @@
-"use client"
+export async function getData(ticker: string){
+  const data = await fetch(`http://localhost:8000/api/ticker/${ticker}`)
+  return data.json()
+}
 
-import useSWR from 'swr'
+export default async function Ticker({ params }: { params: { ticker: string } }) {
 
-export default function Ticker({ params }: { params: { ticker: string } }) {
-
-  const { data, error, isLoading } = useSWR(`/api/ticker/${params.ticker}`, (url) => fetch(url).then((res) => res.json()));
-  console.log("Data: ", data);
-  console.log("Err: ", error);
-  console.log("Loading: ", isLoading);
+  const data = await getData(params.ticker);
 
   return (
     <main className="flex flex-wrap min-h-screen flex-col items-left justify-between p-24">
       <h1>{params.ticker}</h1>
-      {error && <div>failed to load</div>}
-      {isLoading && <div>loading...</div>}
 
       <h2>EMA</h2>
       <div >
