@@ -4,7 +4,8 @@ import numpy as np
 import datetime as dt
 from dateutil.relativedelta import relativedelta
 import streamlit as st
-import mplfinance as mpf
+import altair as alt
+
 
 
 def get_data(ticker, start="2023-07-01", end=dt.datetime.today().strftime("%Y-%m-%d")):
@@ -75,7 +76,6 @@ def get_data(ticker, start="2023-07-01", end=dt.datetime.today().strftime("%Y-%m
 #
 #client = RESTClient(api_key=apikey)
 
-
 ticker = st.text_input("Enter a stock ticker", "AAPL")
 
 start_col, end_col = st.columns(2)
@@ -88,37 +88,71 @@ with end_col:
 
 data = get_data(ticker)
 
+data
+
 # Calculate EMAs (fast, slow, signal)
 fast_ema = data["Adj Close"].ewm(span=12, min_periods=12).mean()
 slow_ema = data["Adj Close"].ewm(span=26, min_periods=26).mean()
 signal_ema = fast_ema.ewm(span=9, min_periods=9).mean()
 
+
 # Calculate MACD and Signal line
 macd = fast_ema - slow_ema
-signal = signal_ema
 
 # Highlight buy/sell signals
-buy_signals = macd > signal  # When MACD crosses above signal line
-sell_signals = macd < signal  # When MACD crosses below signal line
+buy_signals = macd > signal_ema  # When MACD crosses above signal line
+sell_signals = macd < signal_ema  # When MACD crosses below signal line
 
 
-# Configure interactive plot
-mcfg = {
-    "type": "candle",
-    "style": "yahoo",
-    "volume": True,
-    "mav": (fast_ema.name, slow_ema.name),
-    "addplot": [
-        {"type": "macd", "mav": (fast_ema.name, slow_ema.name), "color": "r", "width": 1},
-        {"type": "bband", "period": 20, "std": 2},  # Bollinger Bands with window 20 and std 2
-        {"scatter": buy_signals.index, "marker": "^", "color": "green", "size": 100},
-        {"scatter": sell_signals.index, "marker": "v", "color": "red", "size": 100}
-    ],
-    "interactive": True  # Enable interactive elements
-}
+# Calculate Bollinger Bands (replace with your calculation if different)
+data['Upper Band'] = data['Adj Close'].rolling(window=20).mean() + 2 * data['Adj Close'].rolling(window=20).std()
+data['Lower Band'] = data['Adj Close'].rolling(window=20).mean() - 2 * data['Adj Close'].rolling(window=20).std()
 
 
-# Plot the chart
-#x = mpf.plot(data, mcfg, #title=f"{ticker} Price Chart with Indicators ({start_date} - {end_date})")
-x = mpf.plot(data, **mcfg)
-st.write(x)
+# Data preparation for Altair
+base = alt.Chart(data).transform_fold(fold=['Fast EMA', 'Slow EMA', 'MACD', 'Upper Band', 'Lower Band'], as_=['value', 'Indicator'])
+
+# Main price plot
+main_chart = base.mark_line(color='steelblue').encode(
+    x='index:T',
+    y='Adj Close:Q',
+).properties(
+    width=800,
+    height=400,
+    title=f"{ticker} Price Chart with Indicators ({start_date} - {end_date})"
+).add_line(
+    base.mark_line(color='orange').encode(y='Fast EMA:Q'),
+    base.mark_line(color='purple').encode(y='Slow EMA:Q'),
+).add_band(
+    base.mark_area(opacity=0.2).encode(
+        y='Lower Band:Q',
+        y2='Upper Band:Q',
+        color='lightgray'
+    )
+)
+
+# MACD plot
+macd_chart = base.mark_line(size=2).encode(
+    x='index:T',
+    y='Indicator:N',
+    color='field:N'
+).transform_filter(alt.datum['Indicator'] != 'Adj Close').properties(
+    width=800,
+    height=200,
+    title='MACD',
+    y_axis=alt.Axis(labels=False)  # Remove MACD value labels
+).add_rule(
+    base.mark_rule().encode(y='0:Q', strokeDash=[3, 3])
+)
+
+# Highlight buy/sell signals as scattered points on main chart
+main_chart = main_chart.add_points(
+    base.transform_filter(alt.datum['Indicator'] == 'MACD'),
+    mark=alt.MarkPoint(size=10, filled=True),
+    encode=alt.Color('Indicator:N', scale=alt.Scale(domain=['MACD', 'Signal'], scheme='redblue'))
+).transform_filter(alt.datum['Indicator'] == 'MACD')
+
+# Combine and display plots
+c = main_chart & macd_chart
+
+st.altair_chart(c, use_container_width=True)
