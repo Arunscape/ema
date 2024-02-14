@@ -1,0 +1,11 @@
+name = "EMA"
+packages = [
+  "fastapi",
+  #  "uvicorn[standard]",
+  "pandas",
+  "yfinance[nospam,repair]",
+  "pytickersymbols",
+  "numpy",
+]
+
+
