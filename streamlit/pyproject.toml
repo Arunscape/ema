@@ -1,0 +1,26 @@
+[tool.poetry]
+name = "ema"
+version = "0.1.0"
+description = ""
+authors = ["Arunscape <8227297+Arunscape@users.noreply.github.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+streamlit = "^1.31.1"
+yfinance = {extras = ["nospam", "repair"], version = "^0.2.36"}
+numpy = "^1.26.4"
+pandas = "^2.2.0"
+polygon-api-client = "^1.13.4"
+httpx = {extras = ["http2"], version = "^0.26.0"}
+
+
+[tool.poetry.dev-dependencies]
+black = "^24.2.0"
+isort = "^5.13.2"
+vulture = "^2.11"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

@@ -12,9 +12,9 @@ app = FastAPI(docs_url="/api/docs", openapi_url="/api/openapi.json")
 def healthchecker():
     return {"status": "success", "message": "Integrate FastAPI Framework with Next.js"}
 
+
 @app.get("/api/ticker/{ticker}")
 def ticker_info(ticker):
-
     data = get_data(ticker)
 
     crosses_up, crosses_down = ema_crosses_ma(data)
@@ -28,11 +28,8 @@ def ticker_info(ticker):
         "macd": {
             "bullish_macd": bullish_macd,
             "bearish_macd": bearish_macd,
-        }
+        },
     }
-
-
-
 
 
 def get_data(ticker, start="2023-07-01", end=datetime.today().strftime("%Y-%m-%d")):
@@ -65,7 +62,10 @@ def ema_crosses_ma(data):
     print("\nDates where 20EMA crosses below 50MA (downward):")
     print(crosses_down[["Close", "EMA_20", "MA_50"]])
 
-    return crosses_up[["Close", "EMA_20", "MA_50"]], crosses_down[["Close", "EMA_20", "MA_50"]]
+    return (
+        crosses_up[["Close", "EMA_20", "MA_50"]],
+        crosses_down[["Close", "EMA_20", "MA_50"]],
+    )
 
 
 def macd_crossovers(data):
