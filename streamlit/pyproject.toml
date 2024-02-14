@@ -13,6 +13,9 @@ numpy = "^1.26.4"
 pandas = "^2.2.0"
 polygon-api-client = "^1.13.4"
 httpx = {extras = ["http2"], version = "^0.26.0"}
+mplfinance = "^0.12.10b0"
+pandas-datareader = {git = "https://github.com/pydata/pandas-datareader.git"}
+matplotlib = "^3.8.2"
 
 
 [tool.poetry.dev-dependencies]
